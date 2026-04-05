@@ -1,159 +1,215 @@
-# Turborepo starter
+# 🧩 Multi-Tenant Task Board
 
-This Turborepo starter is maintained by the Turborepo core team.
+> Full-stack assignment project built with Next.js, Express, PostgreSQL, and Prisma (v6) using a Turborepo monorepo architecture.
 
-## Using this example
+---
 
-Run the following command:
+## 1. Overview
 
-```sh
-npx create-turbo@latest
-```
+This project implements a multi-tenant task management system with a Kanban-style interface. Each user belongs to a tenant (workspace), and all tasks are strictly scoped within that tenant. The system allows users to create, update, delete, and organize tasks across three statuses: todo, in_progress, and done.
 
-## What's inside?
+The application includes authentication, task CRUD operations, drag-and-drop functionality, optimistic UI updates, and inline editing through a modal interface. A key requirement of the system is strict tenant isolation, which is enforced at the backend API layer rather than relying on frontend filtering.
 
-This Turborepo includes the following packages/apps:
+---
 
-### Apps and Packages
+## 2. Tech Stack
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Frontend:
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+- Next.js (App Router)
+- React
+- Ant Design
+- dnd-kit
 
-### Utilities
+Backend:
 
-This Turborepo has some additional tools already setup for you:
+- Express.js
+- Prisma ORM (v6)
+- PostgreSQL
+- JWT authentication
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+Shared:
 
-### Build
+- TypeScript (strict mode enabled)
+- Zod (validation)
+- Turborepo (monorepo)
 
-To build all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## 3. Monorepo Structure
 
-```sh
-cd my-turborepo
-turbo build
-```
+The project is structured as a Turborepo workspace with clearly separated applications and shared packages.
 
-Without global `turbo`, use your package manager:
+apps/
+web/ → frontend application (Next.js)
+api/ → backend application (Express)
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+packages/
+core/ → shared contracts (types, schemas, API definitions, utilities)
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+This structure ensures that shared logic is centralized and reused across both applications.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo build --filter=docs
-```
+## 4. Shared Core Package
 
-Without global `turbo`:
+The packages/core module acts as the single source of truth across the system.
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+It exports shared TypeScript types such as Task, User, Tenant, and ApiResponse<T>, along with Zod schemas for validation, API contract definitions for request and response shapes, and reusable utility functions.
 
-### Develop
+Both frontend and backend import from this package, ensuring type safety and eliminating duplication.
 
-To develop all apps and packages, run the following command:
+---
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+## 5. Setup Instructions
 
-```sh
-cd my-turborepo
-turbo dev
-```
+To run the project locally, first install dependencies:
 
-Without global `turbo`, use your package manager:
+npm install
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
+---
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+Backend setup:
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+cd apps/api  
+npx prisma generate  
+npx prisma migrate dev  
+npm run dev
 
-```sh
-turbo dev --filter=web
-```
+The backend server runs on http://localhost:4000
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
+Frontend setup:
 
-### Remote Caching
+cd apps/web  
+npm run dev
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+The frontend runs on http://localhost:3000
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
+---
 
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
+## 6. Environment Configuration
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
+Create a .env file inside apps/api with the following variables:
 
-```sh
-cd my-turborepo
-turbo login
-```
+DATABASE_URL=postgresql://postgres:password@localhost:5432/db  
+JWT_SECRET=your_secret
 
-Without global `turbo`, use your package manager:
+These values are required for database connection and JWT authentication.
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
+---
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+## 7. Authentication Flow
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+Users can register or log in using email and password. During registration, a new tenant is created and linked to the user. Upon successful login, a JWT token is issued containing the userId and tenantId.
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+The token is stored in localStorage on the frontend and sent with every API request using the Authorization header in the format:
 
-```sh
-turbo link
-```
+Authorization: Bearer <token>
 
-Without global `turbo`:
+The backend validates this token using middleware and attaches the user context to each request.
 
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
+---
 
-## Useful Links
+## 8. Multi-Tenancy Enforcement
 
-Learn more about the power of Turborepo:
+The system uses a tenant-based multi-tenancy model with a single shared database. Each user and task is associated with a tenantId.
 
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+All backend queries are scoped using:
+
+where: { tenantId: req.user.tenantId }
+
+This ensures that users cannot access or modify data belonging to other tenants, even if they possess a valid JWT.
+
+---
+
+## 9. Task Board Functionality
+
+Each task includes the following fields:
+
+- id
+- title
+- description
+- status (todo | in_progress | done)
+- assigneeId
+- tenantId
+- createdAt
+- updatedAt
+
+The frontend displays tasks in a Kanban board with three columns corresponding to the status values.
+
+---
+
+Drag-and-drop allows users to move tasks between columns. When a task is dropped into a new column, the UI updates immediately using an optimistic update strategy, and a corresponding API request is sent to persist the change.
+
+If the API request fails, the UI state is rolled back to its previous state.
+
+---
+
+Each task also supports inline editing. An edit icon on the task card opens a modal where users can update task details such as title, description, and status. Changes are sent to the backend via an update API.
+
+---
+
+## 10. API Overview
+
+Authentication endpoints:
+
+POST /auth/register  
+POST /auth/login
+
+---
+
+Task endpoints:
+
+GET /tasks  
+POST /tasks  
+PUT /tasks/:id  
+DELETE /tasks/:id
+
+All task endpoints require a valid JWT token.
+
+---
+
+## 11. State Management
+
+Frontend state is managed using React hooks. A custom hook (useTasks) is responsible for fetching tasks, storing them in local state, and handling loading and error states.
+
+The dashboard component acts as the single source of truth for task data and passes state down to child components such as TaskBoard and CreateTaskForm.
+
+Optimistic updates are used to enhance user experience during drag-and-drop interactions.
+
+---
+
+## 12. Security Considerations
+
+- JWT-based authentication ensures stateless security
+- Passwords are hashed using bcrypt
+- Tenant isolation is enforced at the API layer
+- No sensitive data is exposed to the frontend
+
+---
+
+## 13. Key Design Decisions
+
+The project uses a monorepo architecture to centralize shared contracts and maintain consistency across the stack. Zod is used for validation to ensure identical rules on both client and server. Prisma provides type-safe database access, and optimistic UI updates improve responsiveness.
+
+The architecture prioritizes simplicity, maintainability, and strict type safety.
+
+---
+
+## 14. Future Improvements
+
+- Implement refresh token mechanism for better authentication
+- Add role-based access control within tenants
+- Introduce real-time updates using WebSockets
+- Add pagination and filtering for tasks
+- Implement automated testing (unit, integration, e2e)
+
+---
+
+## 15. Summary
+
+This project demonstrates a complete full-stack system with clear separation of concerns, strong type safety, secure multi-tenant architecture, and a responsive user experience.
+
+The use of a shared core package ensures consistency across frontend and backend, while backend-enforced tenant isolation guarantees data security.
