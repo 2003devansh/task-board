@@ -4,8 +4,6 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = "secret";
-
 export async function register(req: Request, res: Response) {
   const { email, password, workspaceName } = req.body;
 
@@ -33,7 +31,7 @@ export async function register(req: Request, res: Response) {
 
     const token = jwt.sign(
       { userId: user.id, tenantId: tenant.id },
-      JWT_SECRET,
+      process.env.JWT_SECRET!,
     );
 
     res.json({ token });
@@ -60,7 +58,7 @@ export async function login(req: Request, res: Response) {
 
     const token = jwt.sign(
       { userId: user.id, tenantId: user.tenantId },
-      JWT_SECRET,
+      process.env.JWT_SECRET!,
     );
 
     res.json({ token });
