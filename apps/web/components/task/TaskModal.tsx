@@ -25,7 +25,6 @@ export default function TaskModal({
       message.success("Task updated");
       setOpen(false);
 
-      // ⚠️ simple approach: reload page
       window.location.reload();
     } catch (err: any) {
       message.error(err.message || "Failed to update");

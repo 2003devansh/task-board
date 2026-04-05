@@ -16,8 +16,7 @@ The application includes authentication, task CRUD operations, drag-and-drop fun
 
 Frontend:
 
-- Next.js (App Router)
-- React
+- Next.js
 - Ant Design
 - dnd-kit
 

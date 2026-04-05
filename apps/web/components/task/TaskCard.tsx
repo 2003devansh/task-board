@@ -29,7 +29,6 @@ export default function TaskCard({ task }: { task: TaskTypes }) {
   return (
     <>
       <div ref={setNodeRef} style={style}>
-        {/* 🔥 Drag Handle (ONLY this part is draggable) */}
         <div
           {...listeners}
           {...attributes}
@@ -43,7 +42,6 @@ export default function TaskCard({ task }: { task: TaskTypes }) {
           Drag
         </div>
 
-        {/* 🔥 Edit Icon */}
         <EditOutlined
           onClick={(e) => {
             e.stopPropagation(); // prevent drag interference
@@ -61,7 +59,6 @@ export default function TaskCard({ task }: { task: TaskTypes }) {
           onMouseLeave={(e) => (e.currentTarget.style.color = "#555")}
         />
 
-        {/* Task Content */}
         <strong style={{ display: "block", marginBottom: 4 }}>
           {task.title}
         </strong>
@@ -70,7 +67,6 @@ export default function TaskCard({ task }: { task: TaskTypes }) {
         </p>
       </div>
 
-      {/* 🔥 Modal */}
       <TaskModal task={task} open={open} setOpen={setOpen} />
     </>
   );

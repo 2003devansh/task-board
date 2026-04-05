@@ -1,4 +1,3 @@
-// app/(auth)/register/page.tsx
 "use client";
 
 import { Form, Input, Button, message } from "antd";
@@ -7,6 +6,7 @@ import { apiFetch } from "../../../lib/api";
 type RegisterForm = {
   email: string;
   password: string;
+  workspaceName: string;
 };
 
 export default function RegisterPage() {
@@ -50,6 +50,14 @@ export default function RegisterPage() {
           rules={[{ required: true, message: "Password is required" }]}
         >
           <Input.Password placeholder="Enter password" />
+        </Form.Item>
+
+        <Form.Item
+          name="workspaceName"
+          label="Workspace Name"
+          rules={[{ required: true, message: "Workspace name is required" }]}
+        >
+          <Input placeholder="Enter workspace name" />
         </Form.Item>
 
         <Button type="primary" htmlType="submit" block>
